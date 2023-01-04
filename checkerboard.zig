@@ -1,6 +1,6 @@
 const std = @import("std");
-
-extern fn consoleLog(arg: u32) void;
+const String = @import("zig-string.zig").String;
+const Console = @import("JS.zig").Console;
 
 const checkerboard_size: usize = 8;
 
@@ -10,6 +10,21 @@ var checkerboard_buffer = std.mem.zeroes([checkerboard_size][checkerboard_size][
 // The returned pointer will be used as an offset integer to the wasm memory
 export fn getCheckerboardBufferPointer() [*]u8 {
     return @ptrCast([*]u8, &checkerboard_buffer);
+}
+
+export fn stringCheck() void {
+    const alloc: std.mem.Allocator = std.heap.page_allocator;
+
+    // create strings
+    Console.log("Allocating string for scroller text", .{});
+    var text_str: String = String.init(alloc);
+    defer text_str.deinit();
+
+    if (text_str.concat("Hellllloooo where are the cool kids ??????????????")) |_| {
+        Console.log("String created: {s}", .{text_str.str()});
+    } else |err| {
+        Console.log("failed: {s}", .{@errorName(err)});
+    }
 }
 
 export fn colorCheckerboard(
